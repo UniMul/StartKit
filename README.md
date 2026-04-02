@@ -35,8 +35,6 @@ StartKit is a modular CLI framework for building development environments with:
 
 </details>
 
----
-
 ## 🚀 1-minute quick start
 
 Try StartKit in under a minute.
@@ -70,8 +68,6 @@ start-kit doctor
 >
 > In other words, how you obtain StartKit and what StartKit manages are intentionally separate concerns.
 
----
-
 ## ✨ Why StartKit?
 
 Most setup repositories are hard-coded for one machine, one person, or one team.
@@ -89,8 +85,6 @@ This makes StartKit useful as:
 - a team bootstrap foundation
 - an OSS base that others can extend
 
----
-
 ## 🧩 Features
 
 - Modular architecture
@@ -103,8 +97,6 @@ This makes StartKit useful as:
 - Dependency resolution with confirmation UX
 - `--yes` and `--dry-run` support
 - Minimal core by design
-
----
 
 ## 🏗 Architecture
 
@@ -134,8 +126,6 @@ This makes StartKit useful as:
         |                     +----------------+
 ```
 
----
-
 ## 🧠 Core concepts
 
 ### Module
@@ -151,8 +141,6 @@ Local-only overrides:
 custom/modules/
 custom/profiles/
 ```
-
----
 
 ## Framework, not Distribution
 
@@ -186,8 +174,6 @@ These exist to demonstrate how StartKit works, not to define a universal recomme
 
 > StartKit is a framework, not a distribution.
 
----
-
 ## 🖥 Platform support
 
 StartKit currently supports:
@@ -199,8 +185,6 @@ StartKit currently supports:
   - scoop
 
 Linux is intentionally out of scope for now, but the architecture leaves room for future extension.
-
----
 
 ## 📦 start-kit-extras
 
@@ -214,8 +198,6 @@ If you want practical toolsets such as:
 use **`start-kit-extras`** or your local `custom/`.
 
 `start-kit-extras` is a practical module collection built on top of StartKit.
-
----
 
 ## 📖 CLI
 
@@ -239,8 +221,6 @@ start-kit -v
 
 start-kit help
 ```
-
----
 
 ## 📄 Contracts
 
@@ -274,15 +254,11 @@ PROFILE_MODULES=()
 OPTIONAL_MODULES=()
 ```
 
----
-
 ## ⚠️ Uninstall policy
 
 StartKit does **not** provide a unified uninstall mechanism.
 
 Modules may implement `uninstall()` as an optional extension, but the CLI does not invoke it in v1.
-
----
 
 ## 🤝 Contributing
 
@@ -294,8 +270,12 @@ See:
 - [docs/platform-design.md](`docs/platform-design.md`)
 - [docs/repo-split-policy.ja.md](`docs/repo-split-policy.ja.md`)
 - [docs/git-workflow.md](`docs/git-workflow.md`)
+- [changeset-guide.md](`docs/changeset-guide.md`)
+- [changeset-release-flow.md](`docs/changeset-release-flow.md`)
 
----
+## Changelog
+
+See [CHANGELOG.md](./CHANGELOG.md) for release history.
 
 ## 📜 License
 

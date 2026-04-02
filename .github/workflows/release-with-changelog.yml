@@ -1,0 +1,50 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Changesets
+        run: npm install @changesets/cli @changesets/changelog-github
+
+      - name: Run changeset version
+        run: npx changeset version
+
+      - name: Commit generated release files
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add CHANGELOG.md VERSION .changeset
+          git commit -m "chore: version and changelog" || echo "No changes"
+
+      - name: Push release commit
+        run: git push
+
+      - name: Load VERSION
+        run: echo "VERSION=$(cat VERSION)" >> $GITHUB_ENV
+
+      - name: Create tag
+        run: |
+          git tag v$VERSION
+          git push origin v$VERSION
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.VERSION }}
+          generate_release_notes: true
