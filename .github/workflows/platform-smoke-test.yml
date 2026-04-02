@@ -1,0 +1,51 @@
+name: Platform Smoke Test
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  smoke-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Make scripts executable
+        shell: bash
+        run: |
+          chmod +x bin/start-kit || true
+          chmod +x scripts/package-manager-smoke-test.sh || true
+
+      - name: Run doctor
+        shell: bash
+        run: ./bin/start-kit doctor || true
+
+      - name: Run package manager smoke test
+        shell: bash
+        run: ./scripts/package-manager-smoke-test.sh
+
+  smoke-windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Make scripts executable
+        run: |
+          chmod +x bin/start-kit || true
+          chmod +x scripts/package-manager-smoke-test.sh || true
+
+      - name: Run doctor
+        run: ./bin/start-kit doctor || true
+
+      - name: Run package manager smoke test
+        run: ./scripts/package-manager-smoke-test.sh

@@ -287,12 +287,13 @@ Modules may implement `uninstall()` as an optional extension, but the CLI does n
 ## 🤝 Contributing
 
 See:
-- `CONTRIBUTING.md`
-- `docs/cli-spec.md`
-- `docs/module-spec.md`
-- `docs/profile-spec.md`
-- `docs/platform-design.md`
-- `docs/repo-split-policy.en.md`
+- [CONTRIBUTING.md](`CONTRIBUTING.md`)
+- [docs/cli-spec.md](`docs/cli-spec.md`)
+- [docs/module-spec.md](`docs/module-spec.md`)
+- [docs/profile-spec.md](`docs/profile-spec.md`)
+- [docs/platform-design.md](`docs/platform-design.md`)
+- [docs/repo-split-policy.ja.md](`docs/repo-split-policy.ja.md`)
+- [docs/git-workflow.md](`docs/git-workflow.md`)
 
 ---
 
