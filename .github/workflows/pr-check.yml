@@ -1,0 +1,35 @@
+name: PR Check
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  pr-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Bash syntax check
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' file; do
+            bash -n "$file"
+          done < <(find . -type f -name "*.sh" -print0)
+
+      - name: Make start-kit executable
+        shell: bash
+        run: chmod +x bin/start-kit || true
+
+      - name: Smoke test
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./bin/start-kit help
+          ./bin/start-kit version
+          ./bin/start-kit list modules || true
+          ./bin/start-kit list profiles || true

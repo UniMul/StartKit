@@ -1,0 +1,8 @@
+# Profile Specification
+
+```bash
+PROFILE_NAME=""
+PROFILE_DESCRIPTION=""
+PROFILE_MODULES=()
+OPTIONAL_MODULES=()
+```
