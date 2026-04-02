@@ -1,0 +1,11 @@
+{
+  "changelog": [
+    "@changesets/changelog-github",
+    {
+      "repo": "owner/repo"
+    }
+  ],
+  "commit": false,
+  "access": "public",
+  "baseBranch": "main"
+}
