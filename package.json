@@ -1,0 +1,10 @@
+{
+  "name": "start-kit",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Development environment bootstrap framework",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UniMul/StartKit"
+  }
+}

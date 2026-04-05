@@ -10,7 +10,16 @@ command_exists() {
 }
 
 read_version() {
-  cat "${START_KIT_ROOT}/VERSION" 2>/dev/null || echo "unknown"
+  if [[ -f "${START_KIT_ROOT}/package.json" ]]; then
+    if command -v node >/dev/null 2>&1; then
+      node -p "require('${START_KIT_ROOT}/package.json').version" 2>/dev/null || echo "unknown"
+    else
+      # fallback: grepで抽出
+      grep -m1 '"version"' "${START_KIT_ROOT}/package.json" | sed -E 's/.*"version": *"([^"]+)".*/\1/' || echo "unknown"
+    fi
+  else
+    echo "unknown"
+  fi
 }
 
 array_contains() {
