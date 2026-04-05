@@ -1,0 +1,100 @@
+name: Platform Smoke Test
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  smoke-macos:
+    name: smoke-macos
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Make scripts executable
+        shell: bash
+        run: |
+          chmod +x bin/start-kit
+
+      - name: Debug environment
+        shell: bash
+        run: |
+          echo "PATH=$PATH"
+          command -v bash || true
+          command -v git || true
+          command -v brew || true
+
+      - name: Initial Setup
+        shell: bash
+        run: |
+          ./bin/start-kit init
+
+      - name: Install macOS bootstrap profile
+        shell: bash
+        run: |
+          ./bin/start-kit install profile macos-bootstrap --yes
+
+      - name: Install base profile
+        shell: bash
+        run: |
+          ./bin/start-kit install profile base --yes
+
+      - name: Verify environment
+        shell: bash
+        run: |
+          ./bin/start-kit doctor
+          git --version
+          brew --version
+
+  smoke-windows:
+    name: smoke-windows
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Make scripts executable
+        run: |
+          chmod +x bin/start-kit
+
+      - name: Debug environment
+        run: |
+          echo "PATH=$PATH"
+          command -v bash || true
+          command -v git || true
+          command -v winget || true
+          command -v scoop || true
+
+      - name: Initial Setup
+        run: |
+          ./bin/start-kit init
+
+      - name: Install Windows bootstrap profile
+        run: |
+          ./bin/start-kit install profile windows-bootstrap --yes
+
+      - name: Install base profile
+        run: |
+          ./bin/start-kit install profile base --yes
+
+      - name: Verify environment
+        run: |
+          ./bin/start-kit doctor
+          git --version
+          winget --version
+          if command -v scoop >/dev/null 2>&1; then
+            scoop --version
+          else
+            echo "[INFO] scoop is not installed (optional)"
+          fi

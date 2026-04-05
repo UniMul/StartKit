@@ -1,79 +1,111 @@
 #!/usr/bin/env bash
+
 module_reset_context() {
   unset MODULE_NAME MODULE_DESCRIPTION MODULE_SUPPORTS_VERSION
   unset MODULE_DEPENDS MODULE_MANUAL_DOCS MODULE_SUPPORTED_PLATFORMS
   unset MODULE_PACKAGE_BREW MODULE_PACKAGE_WINGET MODULE_PACKAGE_SCOOP
   unset -f check plan install post_install doctor 2>/dev/null || true
 }
+
+array_length() {
+  local var_name="$1"
+  eval 'if [[ "${'"$var_name"'+set}" == "set" ]]; then echo "${#'"$var_name"'[@]}"; else echo 0; fi'
+}
+
 module_load() {
   local module_name="$1"
-  local module_path; module_path="$(resolve_module "$module_name")" || fail "module not found: ${module_name}"
+  local module_path
+  module_path="$(resolve_module "$module_name")" || fail "module not found: ${module_name}"
+
   module_reset_context
+
   # shellcheck disable=SC1090
   source "$module_path"
+
   MODULE_NAME="${MODULE_NAME:-$module_name}"
   MODULE_DESCRIPTION="${MODULE_DESCRIPTION:-}"
   MODULE_SUPPORTS_VERSION="${MODULE_SUPPORTS_VERSION:-false}"
-  declare -ag MODULE_DEPENDS=("${MODULE_DEPENDS[@]:-}")
-  declare -ag MODULE_MANUAL_DOCS=("${MODULE_MANUAL_DOCS[@]:-}")
-  declare -ag MODULE_SUPPORTED_PLATFORMS=("${MODULE_SUPPORTED_PLATFORMS[@]:-}")
+
   declare -f check >/dev/null || fail "module '${module_name}' is missing check()"
   declare -f plan >/dev/null || fail "module '${module_name}' is missing plan()"
   declare -f install >/dev/null || fail "module '${module_name}' is missing install()"
   declare -f post_install >/dev/null || fail "module '${module_name}' is missing post_install()"
   declare -f doctor >/dev/null || fail "module '${module_name}' is missing doctor()"
 }
+
 module_is_installed() {
   local module_name="$1"
   module_load "$module_name"
   check
 }
+
 collect_missing_dependencies() {
   local module_name="$1"
-  local -n out_ref="$2"
-  module_load "$module_name"
+  local out_name="$2"
   local dep
-  for dep in "${MODULE_DEPENDS[@]}"; do
-    if ! array_contains "$dep" "${out_ref[@]:-}"; then
+
+  module_load "$module_name"
+
+  if [[ "$(array_length MODULE_DEPENDS)" -eq 0 ]]; then
+    return 0
+  fi
+
+  eval 'for dep in "${MODULE_DEPENDS[@]}"; do
+    if ! array_contains "$dep" "${'"$out_name"'[@]:-}"; then
       if ! module_is_installed "$dep"; then
-        out_ref+=("$dep")
+        '"$out_name"'+=("$dep")
       fi
-      collect_missing_dependencies "$dep" out_ref
+      collect_missing_dependencies "$dep" '"$out_name"'
     fi
-  done
+  done'
 }
+
 confirm_dependency_install() {
-  local -a missing=("$@")
+  local missing=("$@")
+
   [[ ${#missing[@]} -eq 0 ]] && return 0
+
   printf 'The following dependencies will be installed:\n'
   printf ' - %s\n' "${missing[@]}"
   printf 'Proceed? [y/N]: '
   read -r answer
   [[ "$answer" == "y" || "$answer" == "Y" ]]
 }
+
 print_dependency_status() {
   local module_name="$1"
-  module_load "$module_name"
-  [[ ${#MODULE_DEPENDS[@]} -eq 0 ]] && return 0
-  log_info "Dependencies for ${MODULE_NAME}:"
   local dep
-  for dep in "${MODULE_DEPENDS[@]}"; do
+
+  module_load "$module_name"
+
+  if [[ "$(array_length MODULE_DEPENDS)" -eq 0 ]]; then
+    return 0
+  fi
+
+  log_info "Dependencies for ${MODULE_NAME}:"
+  eval 'for dep in "${MODULE_DEPENDS[@]}"; do
     if module_is_installed "$dep"; then
-      printf '  [OK] %s\n' "$dep"
+      printf "  [OK] %s\n" "$dep"
     else
-      printf '  [MISSING] %s\n' "$dep"
+      printf "  [MISSING] %s\n" "$dep"
     fi
-  done
+  done'
 }
+
 run_module_install() {
   local module_name="$1"
   local requested_version="${2:-}"
-  local -n installed_ref="$3"
+  local installed_ref_name="$3"
   local assume_yes="${4:-false}"
   local dry_run="${5:-false}"
-  array_contains "$module_name" "${installed_ref[@]:-}" && return 0
+
+  if eval 'array_contains "$module_name" "${'"$installed_ref_name"'[@]:-}"'; then
+    return 0
+  fi
+
   local missing_deps=()
   collect_missing_dependencies "$module_name" missing_deps
+
   if [[ "$dry_run" == "true" ]]; then
     log_info "Dry-run: module ${module_name}"
     if [[ ${#missing_deps[@]} -gt 0 ]]; then
@@ -84,19 +116,31 @@ run_module_install() {
     plan
     return 0
   fi
+
   if [[ ${#missing_deps[@]} -gt 0 && "$assume_yes" != "true" ]]; then
     confirm_dependency_install "${missing_deps[@]}" || fail "installation cancelled"
   fi
+
   module_load "$module_name"
+
   local dep
-  for dep in "${MODULE_DEPENDS[@]}"; do
-    run_module_install "$dep" "" installed_ref "$assume_yes" "$dry_run"
-  done
-  if [[ ${#MODULE_SUPPORTED_PLATFORMS[@]} -gt 0 ]]; then
-    ensure_supported_platform "${MODULE_SUPPORTED_PLATFORMS[@]}" || { log_error "module '${MODULE_NAME}' does not support platform '${START_KIT_PLATFORM}'"; return 1; }
+  if [[ "$(array_length MODULE_DEPENDS)" -gt 0 ]]; then
+    eval 'for dep in "${MODULE_DEPENDS[@]}"; do
+      run_module_install "$dep" "" '"$installed_ref_name"' "$assume_yes" "$dry_run"
+    done'
   fi
+
+  if [[ "$(array_length MODULE_SUPPORTED_PLATFORMS)" -gt 0 ]]; then
+    eval 'ensure_supported_platform "${MODULE_SUPPORTED_PLATFORMS[@]}"' || {
+      log_error "module '${MODULE_NAME}' does not support platform '${START_KIT_PLATFORM}'"
+      return 1
+    }
+  fi
+
   export START_KIT_VERSION="$requested_version"
+
   print_dependency_status "$module_name"
+
   if check; then
     log_ok "${MODULE_NAME} already installed"
   else
@@ -104,11 +148,18 @@ run_module_install() {
     install
     post_install
   fi
+
   if doctor; then
     log_ok "${MODULE_NAME} doctor passed"
   else
     local rc=$?
-    if [[ "$rc" -eq 2 ]]; then log_warn "${MODULE_NAME} doctor returned WARN"; else log_error "${MODULE_NAME} doctor returned FAIL"; return "$rc"; fi
+    if [[ "$rc" -eq 2 ]]; then
+      log_warn "${MODULE_NAME} doctor returned WARN"
+    else
+      log_error "${MODULE_NAME} doctor returned FAIL"
+      return "$rc"
+    fi
   fi
-  installed_ref+=("$module_name")
+
+  eval "$installed_ref_name+=(\"\$module_name\")"
 }

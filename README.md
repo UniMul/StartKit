@@ -1,3 +1,5 @@
+![StartKit Header](./assets/readme/header/header.png)
+
 # StartKit
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)]()
@@ -19,14 +21,15 @@ StartKit is a modular CLI framework for building development environments with:
 <details>
 <summary>Table of Contents</summary>
 
+- [⚙️ Initial Setup](#-initial-setup)
 - [🚀 1-minute quick start](#-1-minute-quick-start)
 - [✨ Why StartKit?](#-why-startkit)
 - [🧩 Features](#-features)
 - [🏗 Architecture](#-architecture)
 - [🧠 Core concepts](#-core-concepts)
-- [Framework, not Distribution](#framework-not-distribution)
+- [📕 Framework, not Distribution](#-framework-not-distribution)
 - [🖥 Platform support](#-platform-support)
-- [📦 start-kit-extras](#-start-kit-extras)
+- [📦 Custom](#-custom)
 - [📖 CLI](#-cli)
 - [📄 Contracts](#-contracts)
 - [⚠️ Uninstall policy](#-uninstall-policy)
@@ -35,18 +38,52 @@ StartKit is a modular CLI framework for building development environments with:
 
 </details>
 
----
+## ⚙️ Initial Setup
+
+Follow these steps to set up StartKit:
+
+```bash
+git clone <repo>
+cd StartKit
+
+echo "export STARTKIT_HOME=\"$(pwd)\"" >> ~/.zshrc
+echo 'export PATH="$STARTKIT_HOME/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+
+start-kit init
+```
+
+This will:
+- Add the start-kit CLI to your PATH
+- Initialize the StartKit environment
+
+Depending on your operating system, follow one of the setups below:
+- [macOS Setup](#macos-setup)
+- [Windows Setup](#windows-setup)
+
+### macOS Setup
+
+```bash
+start-kit install profile macos-bootstrap
+```
+
+This will:
+- Ensure Homebrew is available
+
+### Windows Setup
+
+```bash
+start-kit install profile windows-bootstrap
+```
+
+This will:
+- Ensure winget (and optionally scoop) is available
 
 ## 🚀 1-minute quick start
 
 Try StartKit in under a minute.
 
 ```bash
-git clone <repo>
-cd start-kit
-
-export PATH="$PWD/bin:$PATH"
-
 start-kit install profile base
 ```
 
@@ -70,8 +107,6 @@ start-kit doctor
 >
 > In other words, how you obtain StartKit and what StartKit manages are intentionally separate concerns.
 
----
-
 ## ✨ Why StartKit?
 
 Most setup repositories are hard-coded for one machine, one person, or one team.
@@ -89,8 +124,6 @@ This makes StartKit useful as:
 - a team bootstrap foundation
 - an OSS base that others can extend
 
----
-
 ## 🧩 Features
 
 - Modular architecture
@@ -104,37 +137,9 @@ This makes StartKit useful as:
 - `--yes` and `--dry-run` support
 - Minimal core by design
 
----
-
 ## 🏗 Architecture
 
 ![Architecture overview](./assets/readme/diagrams/architecture-overview.png)
-
-```text
-            +----------------------+
-            |      start-kit       |
-            |        (CLI)         |
-            +----------+-----------+
-                       |
-        +--------------+--------------+
-        |                             |
-+-------v--------+           +--------v--------+
-|    profile     |           |      module     |
-| (use-case set) |           | (tool unit)     |
-+-------+--------+           +--------+--------+
-        |                             |
-        |                     +-------v--------+
-        |                     | package mgr    |
-        |                     | abstraction    |
-        |                     +-------+--------+
-        |                             |
-        |                     +-------v--------+
-        |                     |   platform     |
-        |                     | macOS/windows  |
-        |                     +----------------+
-```
-
----
 
 ## 🧠 Core concepts
 
@@ -152,9 +157,7 @@ custom/modules/
 custom/profiles/
 ```
 
----
-
-## Framework, not Distribution
+## 📕 Framework, not Distribution
 
 StartKit is a **framework for environment setup**, not a distribution of opinionated tools.
 
@@ -186,8 +189,6 @@ These exist to demonstrate how StartKit works, not to define a universal recomme
 
 > StartKit is a framework, not a distribution.
 
----
-
 ## 🖥 Platform support
 
 StartKit currently supports:
@@ -200,9 +201,7 @@ StartKit currently supports:
 
 Linux is intentionally out of scope for now, but the architecture leaves room for future extension.
 
----
-
-## 📦 start-kit-extras
+## 📦 Custom
 
 StartKit core intentionally stays minimal.
 
@@ -211,11 +210,51 @@ If you want practical toolsets such as:
 - AI development tools
 - GUI apps
 
-use **`start-kit-extras`** or your local `custom/`.
+use `custom/`.
 
-`start-kit-extras` is a practical module collection built on top of StartKit.
+### Custom Resolution
 
----
+StartKit resolves custom modules and profiles using `custom/paths.txt`.
+
+- one entry per line
+- relative to `custom/`
+- empty lines ignored
+- `#` treated as comment
+
+Resolution order:
+
+Modules:
+1. custom/<root>/modules/<name>
+2. custom/modules/<name>
+3. modules/<name>
+
+Profiles:
+1. custom/<root>/profiles/<name>
+2. custom/profiles/<name>
+3. profiles/<name>
+
+### Creating Modules / Profiles
+
+```bash
+start-kit new module foo
+start-kit new profile bar
+```
+
+→ custom/modules / custom/profiles
+
+```bash
+start-kit new module foo --custom StartKit
+```
+
+→ modules/
+
+```bash
+start-kit new module foo --custom personal
+```
+
+→ custom/personal/
+
+If not registered in paths.txt, it will still be created with warning.
 
 ## 📖 CLI
 
@@ -239,8 +278,6 @@ start-kit -v
 
 start-kit help
 ```
-
----
 
 ## 📄 Contracts
 
@@ -274,27 +311,33 @@ PROFILE_MODULES=()
 OPTIONAL_MODULES=()
 ```
 
----
-
 ## ⚠️ Uninstall policy
 
 StartKit does **not** provide a unified uninstall mechanism.
 
 Modules may implement `uninstall()` as an optional extension, but the CLI does not invoke it in v1.
 
----
-
 ## 🤝 Contributing
 
-See:
-- `CONTRIBUTING.md`
-- `docs/cli-spec.md`
-- `docs/module-spec.md`
-- `docs/profile-spec.md`
-- `docs/platform-design.md`
-- `docs/repo-split-policy.en.md`
+Start here:
+- [CONTRIBUTING.md](`CONTRIBUTING.md`)
+- [docs/cli-spec.md](docs/cli-spec.md)
+- [docs/custom-paths.md](docs/custom-paths.md)
+- [docs/module-spec.md](docs/module-spec.md)
+- [docs/profile-spec.md](docs/profile-spec.md)
 
----
+Then:
+- [docs/platform-design.md](docs/platform-design.md)
+- [docs/git-workflow.md](docs/git-workflow.md)
+- [docs/changeset-guide.md](docs/changeset-guide.md)
+- [docs/changeset-release-flow.md](docs/changeset-release-flow.md)
+
+Optional:
+- [docs/practicality-patch.md](docs/practicality-patch.md)
+
+## Changelog
+
+See [CHANGELOG.md](./CHANGELOG.md) for release history.
 
 ## 📜 License
 

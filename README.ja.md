@@ -1,5 +1,10 @@
+![StartKit Header](./assets/readme/header/header.png)
+
 # StartKit
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)]()
+[![Shell](https://img.shields.io/badge/Shell-Bash-green)]()
+[![Status](https://img.shields.io/badge/status-active-success)]()
 [![English](https://img.shields.io/badge/lang-English-blue)](./README.md)
 [![日本語](https://img.shields.io/badge/lang-日本語-green)](./README.ja.md)
 
@@ -16,14 +21,15 @@ StartKit は、次の要素で開発環境を構築するための modular CLI f
 <details>
 <summary>目次</summary>
 
+- [⚙️ 初期設定](#-初期設定)
 - [🚀 1分で試す](#-1分で試す)
 - [✨ なぜ StartKit か](#-なぜ-startkit-か)
 - [🧩 特徴](#-特徴)
 - [🏗 アーキテクチャ](#-アーキテクチャ)
 - [🧠 コア概念](#-コア概念)
-- [Framework, not Distribution](#framework-not-distribution)
+- [📕 Framework, not Distribution](#framework-not-distribution)
 - [🖥 サポートプラットフォーム](#-サポートプラットフォーム)
-- [📦 start-kit-extras](#-start-kit-extras)
+- [📦 ユーザーカスタム](#-ユーザーカスタム)
 - [📖 CLI](#-cli)
 - [📄 Contract](#-contract)
 - [⚠️ uninstall ポリシー](#-uninstall-ポリシー)
@@ -32,18 +38,52 @@ StartKit は、次の要素で開発環境を構築するための modular CLI f
 
 </details>
 
----
+## ⚙️ 初期設定
+
+初期設定の手順を説明します。
+
+```bash
+git clone <repo>
+cd StartKit
+
+echo "export STARTKIT_HOME=\"$(pwd)\"" >> ~/.zshrc
+echo 'export PATH="$STARTKIT_HOME/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+
+start-kit init
+```
+
+この操作により：
+- start-kit コマンドにパスが通ります
+- StartKit の初期設定が行われます
+
+使用しているOSに応じて、以下のいずれかを実行してください：
+- [macOS セットアップ](#macos-セットアップ)
+- [Windows セットアップ](#Windows-セットアップ)
+
+### macOS セットアップ
+
+```bash
+start-kit install profile macos-bootstrap
+```
+
+この操作により：
+- Homebrew の利用可否を確認し、インストールします
+
+### Windows セットアップ
+
+```bash
+start-kit install profile windows-bootstrap
+```
+
+この操作により：
+- winget（および必要に応じて scoop）の利用可否を確認し、インストールします
 
 ## 🚀 1分で試す
 
 1分で StartKit を体験できます。
 
 ```bash
-git clone <repo>
-cd start-kit
-
-export PATH="$PWD/bin:$PATH"
-
 start-kit install profile base
 ```
 
@@ -68,8 +108,6 @@ start-kit doctor
 >
 > つまり、「StartKit の取得方法」と「StartKit が管理する対象」は意図的に分離されています。
 
----
-
 ## ✨ なぜ StartKit か
 
 多くのセットアップリポジトリは、特定の個人・マシン・チームに強く依存しています。
@@ -90,8 +128,6 @@ StartKit はそこを分離します。
 
 として使えます。
 
----
-
 ## 🧩 特徴
 
 - モジュールベース設計
@@ -105,37 +141,9 @@ StartKit はそこを分離します。
 - `--yes` / `--dry-run` 対応
 - 意図的に最小化した core
 
----
-
 ## 🏗 アーキテクチャ
 
 ![Architecture overview](./assets/readme/diagrams/architecture-overview.png)
-
-```text
-            +----------------------+
-            |      start-kit       |
-            |        (CLI)         |
-            +----------+-----------+
-                       |
-        +--------------+--------------+
-        |                             |
-+-------v--------+           +--------v--------+
-|    profile     |           |      module     |
-| (use-case set) |           | (tool unit)     |
-+-------+--------+           +--------+--------+
-        |                             |
-        |                     +-------v--------+
-        |                     | package mgr    |
-        |                     | abstraction    |
-        |                     +-------+--------+
-        |                             |
-        |                     +-------v--------+
-        |                     |   platform     |
-        |                     | macOS/windows  |
-        |                     +----------------+
-```
-
----
 
 ## 🧠 コア概念
 
@@ -153,9 +161,7 @@ custom/modules/
 custom/profiles/
 ```
 
----
-
-## Framework, not Distribution
+## 📕 Framework, not Distribution
 
 StartKit は、**ツール配布セットではなく、環境構築フレームワーク**です。
 
@@ -188,8 +194,6 @@ StartKit は、**ツール配布セットではなく、環境構築フレーム
 
 > StartKit は distribution ではなく framework です。
 
----
-
 ## 🖥 サポートプラットフォーム
 
 StartKit は現在、次をサポート対象とします。
@@ -202,9 +206,7 @@ StartKit は現在、次をサポート対象とします。
 
 Linux は現時点ではスコープ外ですが、将来的な拡張余地は設計上残しています。
 
----
-
-## 📦 start-kit-extras
+## 📦 ユーザーカスタム
 
 StartKit core は意図的に最小構成にしています。
 
@@ -214,11 +216,52 @@ StartKit core は意図的に最小構成にしています。
 - AI開発ツール
 - GUIアプリ
 
-**`start-kit-extras`** またはローカルの `custom/` を使う前提です。
+`custom/` を使う前提です。
 
-`start-kit-extras` は、StartKit の上に載る実用 module collection です。
+### カスタム解決
 
----
+StartKitは `custom/paths.txt` によって探索順を決定します。
+
+- 1行1つ
+- `custom/` 相対
+- 空行無視
+- `#` コメント
+
+探索順:
+
+Module:
+1. custom/<root>/modules/<name>
+2. custom/modules/<name>
+3. modules/<name>
+
+Profile:
+1. custom/<root>/profiles/<name>
+2. custom/profiles/<name>
+3. profiles/<name>
+
+### Module / Profile 作成
+
+```bash
+start-kit new module foo
+start-kit new profile bar
+```
+
+→ custom/modules / custom/profiles
+
+```bash
+start-kit new module foo --custom StartKit
+```
+
+→ modules/
+
+```bash
+start-kit new module foo --custom personal
+```
+
+→ custom/personal/
+
+`custom/paths.txt`が未登録でも作成される（警告あり）
+
 
 ## 📖 CLI
 
@@ -242,8 +285,6 @@ start-kit -v
 
 start-kit help
 ```
-
----
 
 ## 📄 Contract
 
@@ -277,28 +318,33 @@ PROFILE_MODULES=()
 OPTIONAL_MODULES=()
 ```
 
----
-
 ## ⚠️ uninstall ポリシー
 
 StartKit は統一的な uninstall 機構を提供しません。
 
 module 側で `uninstall()` を持つことはできますが、v1 の CLI からは呼びません。
 
----
-
 ## 🤝 Contributing
 
-以下を参照してください。
+まずはこちらを確認してください：
+- [CONTRIBUTING.md](`CONTRIBUTING.md`)
+- [docs/cli-spec.md](docs/cli-spec.md)
+- [docs/custom-paths.md](docs/custom-paths.md)
+- [docs/module-spec.md](docs/module-spec.md)
+- [docs/profile-spec.md](docs/profile-spec.md)
 
-- `CONTRIBUTING.md`
-- `docs/cli-spec.md`
-- `docs/module-spec.md`
-- `docs/profile-spec.md`
-- `docs/platform-design.md`
-- `docs/repo-split-policy.ja.md`
+続いてこちらを確認してください：
+- [docs/platform-design.md](docs/platform-design.md)
+- [docs/git-workflow.md](docs/git-workflow.md)
+- [docs/changeset-guide.md](docs/changeset-guide.md)
+- [docs/changeset-release-flow.md](docs/changeset-release-flow.md)
 
----
+必要に応じて参照してください：
+- [docs/practicality-patch.md](docs/practicality-patch.md)
+
+## 変更履歴
+
+リリース履歴は [CHANGELOG.md](./CHANGELOG.md) を参照してください。
 
 ## 📜 ライセンス
 
