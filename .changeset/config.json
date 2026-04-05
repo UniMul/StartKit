@@ -1,9 +1,7 @@
 {
   "changelog": [
     "@changesets/changelog-github",
-    {
-      "repo": "owner/repo"
-    }
+    { "repo": "UniMul/StartKit" }
   ],
   "commit": false,
   "access": "public",
