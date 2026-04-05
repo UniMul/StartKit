@@ -7,19 +7,6 @@ module_reset_context() {
   unset -f check plan install post_install doctor 2>/dev/null || true
 }
 
-ensure_array_var() {
-  local var_name="$1"
-
-  if ! eval '[[ "${'"$var_name"'+set}" == "set" ]]'; then
-    eval "$var_name=()"
-    return 0
-  fi
-
-  if [[ "$(eval "declare -p $var_name" 2>/dev/null || true)" != declare\ -a* ]]; then
-    eval "$var_name=()"
-  fi
-}
-
 module_load() {
   local module_name="$1"
   local module_path
@@ -33,10 +20,6 @@ module_load() {
   MODULE_NAME="${MODULE_NAME:-$module_name}"
   MODULE_DESCRIPTION="${MODULE_DESCRIPTION:-}"
   MODULE_SUPPORTS_VERSION="${MODULE_SUPPORTS_VERSION:-false}"
-
-  ensure_array_var MODULE_DEPENDS
-  ensure_array_var MODULE_MANUAL_DOCS
-  ensure_array_var MODULE_SUPPORTED_PLATFORMS
 
   declare -f check >/dev/null || fail "module '${module_name}' is missing check()"
   declare -f plan >/dev/null || fail "module '${module_name}' is missing plan()"
@@ -58,14 +41,14 @@ collect_missing_dependencies() {
 
   module_load "$module_name"
 
-  for dep in "${MODULE_DEPENDS[@]}"; do
-    if ! eval "array_contains \"\$dep\" \"\${${out_name}[@]:-}\""; then
+  eval 'for dep in "${MODULE_DEPENDS[@]-}"; do
+    if ! array_contains "$dep" "${'"$out_name"'[@]-}"; then
       if ! module_is_installed "$dep"; then
-        eval "${out_name}+=(\"\$dep\")"
+        '"$out_name"'+=("$dep")
       fi
-      collect_missing_dependencies "$dep" "$out_name"
+      collect_missing_dependencies "$dep" '"$out_name"'
     fi
-  done
+  done'
 }
 
 confirm_dependency_install() {
@@ -86,16 +69,17 @@ print_dependency_status() {
 
   module_load "$module_name"
 
-  [[ ${#MODULE_DEPENDS[@]} -eq 0 ]] && return 0
+  eval '[[ ${#MODULE_DEPENDS[@]-0} -eq 0 ]]' && return 0
 
   log_info "Dependencies for ${MODULE_NAME}:"
-  for dep in "${MODULE_DEPENDS[@]}"; do
+
+  eval 'for dep in "${MODULE_DEPENDS[@]-}"; do
     if module_is_installed "$dep"; then
-      printf '  [OK] %s\n' "$dep"
+      printf "  [OK] %s\n" "$dep"
     else
-      printf '  [MISSING] %s\n' "$dep"
+      printf "  [MISSING] %s\n" "$dep"
     fi
-  done
+  done'
 }
 
 run_module_install() {
@@ -105,7 +89,7 @@ run_module_install() {
   local assume_yes="${4:-false}"
   local dry_run="${5:-false}"
 
-  if eval "array_contains \"\$module_name\" \"\${${installed_ref_name}[@]:-}\""; then
+  if eval 'array_contains "$module_name" "${'"$installed_ref_name"'[@]-}"'; then
     return 0
   fi
 
@@ -130,12 +114,12 @@ run_module_install() {
   module_load "$module_name"
 
   local dep
-  for dep in "${MODULE_DEPENDS[@]}"; do
-    run_module_install "$dep" "" "$installed_ref_name" "$assume_yes" "$dry_run"
-  done
+  eval 'for dep in "${MODULE_DEPENDS[@]-}"; do
+    run_module_install "$dep" "" '"$installed_ref_name"' "$assume_yes" "$dry_run"
+  done'
 
-  if [[ ${#MODULE_SUPPORTED_PLATFORMS[@]} -gt 0 ]]; then
-    ensure_supported_platform "${MODULE_SUPPORTED_PLATFORMS[@]}" || {
+  if eval '[[ ${#MODULE_SUPPORTED_PLATFORMS[@]-0} -gt 0 ]]'; then
+    eval 'ensure_supported_platform "${MODULE_SUPPORTED_PLATFORMS[@]}"' || {
       log_error "module '${MODULE_NAME}' does not support platform '${START_KIT_PLATFORM}'"
       return 1
     }
@@ -165,5 +149,5 @@ run_module_install() {
     fi
   fi
 
-  eval "${installed_ref_name}+=(\"\$module_name\")"
+  eval "$installed_ref_name+=(\"\$module_name\")"
 }
