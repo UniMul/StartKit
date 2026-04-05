@@ -50,10 +50,31 @@ export PATH="$PWD/bin:$PATH"
 start-kit init
 ```
 
-やっていることは
-・start-kitのパスを通す
-・start-kitの初期設定のコマンド実行
+この操作により：
+- start-kit コマンドにパスが通ります
+- StartKit の初期設定が行われます
 
+使用しているOSに応じて、以下のいずれかを実行してください：
+- [macOS セットアップ](#macos-セットアップ)
+- [Windows セットアップ](#Windows-セットアップ)
+
+### macOS セットアップ
+
+```bash
+start-kit install profile macos-bootstrap
+```
+
+この操作により：
+- Homebrew の利用可否を確認し、インストールします
+
+### Windows セットアップ
+
+```bash
+start-kit install profile windows-bootstrap
+```
+
+この操作により：
+- winget（および必要に応じて scoop）の利用可否を確認し、インストールします
 
 ## 🚀 1分で試す
 

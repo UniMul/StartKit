@@ -13,22 +13,34 @@ jobs:
   smoke-macos:
     runs-on: macos-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
+      - uses: actions/checkout@v5
 
       - name: Make scripts executable
         shell: bash
         run: |
-          chmod +x bin/start-kit || true
-          chmod +x scripts/package-manager-smoke-test.sh || true
+          chmod +x bin/start-kit
 
-      - name: Run doctor
+      - name: Initial Setup
         shell: bash
-        run: ./bin/start-kit doctor || true
+        run: |
+          ./bin/start-kit init
 
-      - name: Run package manager smoke test
+      - name: Install macOS bootstrap
         shell: bash
-        run: ./scripts/package-manager-smoke-test.sh
+        run: |
+          ./bin/start-kit install profile macos-bootstrap --yes
+
+      - name: Install base profile
+        shell: bash
+        run: |
+          ./bin/start-kit install profile base --yes
+
+      - name: Verify environment
+        shell: bash
+        run: |
+          ./bin/start-kit doctor
+          git --version
+          brew --version
 
   smoke-windows:
     runs-on: windows-latest
@@ -36,23 +48,26 @@ jobs:
       run:
         shell: bash
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
+      - uses: actions/checkout@v5
 
       - name: Make scripts executable
         run: |
-          chmod +x bin/start-kit || true
-          chmod +x scripts/package-manager-smoke-test.sh || true
+          chmod +x bin/start-kit
 
-      - name: Debug environment
+      - name: Initial Setup
         run: |
-          echo "PATH=$PATH"
-          command -v bash || true
-          command -v winget || true
-          command -v scoop || true
+          ./bin/start-kit init
 
-      - name: Run doctor
-        run: ./bin/start-kit doctor || true
+      - name: Install Windows bootstrap
+        run: |
+          ./bin/start-kit install profile windows-bootstrap --yes
 
-      - name: Run package manager smoke test
-        run: ./scripts/package-manager-smoke-test.sh
+      - name: Install base profile
+        run: |
+          ./bin/start-kit install profile base --yes
+
+      - name: Verify environment
+        run: |
+          ./bin/start-kit doctor
+          git --version
+          winget --version

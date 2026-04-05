@@ -50,9 +50,31 @@ export PATH="$PWD/bin:$PATH"
 start-kit init
 ```
 
-This does the following:
-- Adds start-kit to your PATH
-- Runs the initial setup command
+This will:
+- Add the start-kit CLI to your PATH
+- Initialize the StartKit environment
+
+Depending on your operating system, follow one of the setups below:
+- [macOS Setup](#macos-setup)
+- [Windows Setup](#windows-setup)
+
+### macOS Setup
+
+```bash
+start-kit install profile macos-bootstrap
+```
+
+This will:
+- Ensure Homebrew is available
+
+### Windows Setup
+
+```bash
+start-kit install profile windows-bootstrap
+```
+
+This will:
+- Ensure winget (and optionally scoop) is available
 
 ## 🚀 1-minute quick start
 
