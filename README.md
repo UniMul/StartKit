@@ -114,30 +114,6 @@ This makes StartKit useful as:
 
 ![Architecture overview](./assets/readme/diagrams/architecture-overview.png)
 
-```text
-            +----------------------+
-            |      start-kit       |
-            |        (CLI)         |
-            +----------+-----------+
-                       |
-        +--------------+--------------+
-        |                             |
-+-------v--------+           +--------v--------+
-|    profile     |           |      module     |
-| (use-case set) |           | (tool unit)     |
-+-------+--------+           +--------+--------+
-        |                             |
-        |                     +-------v--------+
-        |                     | package mgr    |
-        |                     | abstraction    |
-        |                     +-------+--------+
-        |                             |
-        |                     +-------v--------+
-        |                     |   platform     |
-        |                     | macOS/windows  |
-        |                     +----------------+
-```
-
 ## 🧠 Core concepts
 
 ### Module

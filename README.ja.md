@@ -1,5 +1,8 @@
 # StartKit
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)]()
+[![Shell](https://img.shields.io/badge/Shell-Bash-green)]()
+[![Status](https://img.shields.io/badge/status-active-success)]()
 [![English](https://img.shields.io/badge/lang-English-blue)](./README.md)
 [![日本語](https://img.shields.io/badge/lang-日本語-green)](./README.ja.md)
 
@@ -115,30 +118,6 @@ StartKit はそこを分離します。
 ## 🏗 アーキテクチャ
 
 ![Architecture overview](./assets/readme/diagrams/architecture-overview.png)
-
-```text
-            +----------------------+
-            |      start-kit       |
-            |        (CLI)         |
-            +----------+-----------+
-                       |
-        +--------------+--------------+
-        |                             |
-+-------v--------+           +--------v--------+
-|    profile     |           |      module     |
-| (use-case set) |           | (tool unit)     |
-+-------+--------+           +--------+--------+
-        |                             |
-        |                     +-------v--------+
-        |                     | package mgr    |
-        |                     | abstraction    |
-        |                     +-------+--------+
-        |                             |
-        |                     +-------v--------+
-        |                     |   platform     |
-        |                     | macOS/windows  |
-        |                     +----------------+
-```
 
 ## 🧠 コア概念
 
