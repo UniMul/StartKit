@@ -334,6 +334,7 @@ Then:
 
 Optional:
 - [docs/practicality-patch.md](docs/practicality-patch.md)
+- [docs/changeset-template.md](docs/changeset-template.md)
 
 ## Changelog
 
