@@ -7,6 +7,11 @@ module_reset_context() {
   unset -f check plan install post_install doctor 2>/dev/null || true
 }
 
+array_length() {
+  local var_name="$1"
+  eval 'if [[ "${'"$var_name"'+set}" == "set" ]]; then echo "${#'"$var_name"'[@]}"; else echo 0; fi'
+}
+
 module_load() {
   local module_name="$1"
   local module_path
@@ -41,8 +46,12 @@ collect_missing_dependencies() {
 
   module_load "$module_name"
 
-  eval 'for dep in "${MODULE_DEPENDS[@]-}"; do
-    if ! array_contains "$dep" "${'"$out_name"'[@]-}"; then
+  if [[ "$(array_length MODULE_DEPENDS)" -eq 0 ]]; then
+    return 0
+  fi
+
+  eval 'for dep in "${MODULE_DEPENDS[@]}"; do
+    if ! array_contains "$dep" "${'"$out_name"'[@]:-}"; then
       if ! module_is_installed "$dep"; then
         '"$out_name"'+=("$dep")
       fi
@@ -69,11 +78,12 @@ print_dependency_status() {
 
   module_load "$module_name"
 
-  eval '[[ ${#MODULE_DEPENDS[@]-0} -eq 0 ]]' && return 0
+  if [[ "$(array_length MODULE_DEPENDS)" -eq 0 ]]; then
+    return 0
+  fi
 
   log_info "Dependencies for ${MODULE_NAME}:"
-
-  eval 'for dep in "${MODULE_DEPENDS[@]-}"; do
+  eval 'for dep in "${MODULE_DEPENDS[@]}"; do
     if module_is_installed "$dep"; then
       printf "  [OK] %s\n" "$dep"
     else
@@ -89,7 +99,7 @@ run_module_install() {
   local assume_yes="${4:-false}"
   local dry_run="${5:-false}"
 
-  if eval 'array_contains "$module_name" "${'"$installed_ref_name"'[@]-}"'; then
+  if eval 'array_contains "$module_name" "${'"$installed_ref_name"'[@]:-}"'; then
     return 0
   fi
 
@@ -114,11 +124,13 @@ run_module_install() {
   module_load "$module_name"
 
   local dep
-  eval 'for dep in "${MODULE_DEPENDS[@]-}"; do
-    run_module_install "$dep" "" '"$installed_ref_name"' "$assume_yes" "$dry_run"
-  done'
+  if [[ "$(array_length MODULE_DEPENDS)" -gt 0 ]]; then
+    eval 'for dep in "${MODULE_DEPENDS[@]}"; do
+      run_module_install "$dep" "" '"$installed_ref_name"' "$assume_yes" "$dry_run"
+    done'
+  fi
 
-  if eval '[[ ${#MODULE_SUPPORTED_PLATFORMS[@]-0} -gt 0 ]]'; then
+  if [[ "$(array_length MODULE_SUPPORTED_PLATFORMS)" -gt 0 ]]; then
     eval 'ensure_supported_platform "${MODULE_SUPPORTED_PLATFORMS[@]}"' || {
       log_error "module '${MODULE_NAME}' does not support platform '${START_KIT_PLATFORM}'"
       return 1
