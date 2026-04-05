@@ -7,6 +7,19 @@ module_reset_context() {
   unset -f check plan install post_install doctor 2>/dev/null || true
 }
 
+ensure_array_var() {
+  local var_name="$1"
+
+  if ! eval '[[ "${'"$var_name"'+set}" == "set" ]]'; then
+    eval "$var_name=()"
+    return 0
+  fi
+
+  if [[ "$(eval "declare -p $var_name" 2>/dev/null || true)" != declare\ -a* ]]; then
+    eval "$var_name=()"
+  fi
+}
+
 module_load() {
   local module_name="$1"
   local module_path
@@ -21,17 +34,9 @@ module_load() {
   MODULE_DESCRIPTION="${MODULE_DESCRIPTION:-}"
   MODULE_SUPPORTS_VERSION="${MODULE_SUPPORTS_VERSION:-false}"
 
-  if [[ "$(declare -p MODULE_DEPENDS 2>/dev/null || true)" != declare\ -a* ]]; then
-    MODULE_DEPENDS=()
-  fi
-
-  if [[ "$(declare -p MODULE_MANUAL_DOCS 2>/dev/null || true)" != declare\ -a* ]]; then
-    MODULE_MANUAL_DOCS=()
-  fi
-
-  if [[ "$(declare -p MODULE_SUPPORTED_PLATFORMS 2>/dev/null || true)" != declare\ -a* ]]; then
-    MODULE_SUPPORTED_PLATFORMS=()
-  fi
+  ensure_array_var MODULE_DEPENDS
+  ensure_array_var MODULE_MANUAL_DOCS
+  ensure_array_var MODULE_SUPPORTED_PLATFORMS
 
   declare -f check >/dev/null || fail "module '${module_name}' is missing check()"
   declare -f plan >/dev/null || fail "module '${module_name}' is missing plan()"
