@@ -1,5 +1,5 @@
 ---
-"start-kit": patch
+"start-kit": patch/minor/major
 ---
 
 Describe the user-facing change here.
