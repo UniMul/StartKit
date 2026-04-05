@@ -19,14 +19,15 @@ StartKit is a modular CLI framework for building development environments with:
 <details>
 <summary>Table of Contents</summary>
 
+- [⚙️ Initial Setup](#-initial-setup)
 - [🚀 1-minute quick start](#-1-minute-quick-start)
 - [✨ Why StartKit?](#-why-startkit)
 - [🧩 Features](#-features)
 - [🏗 Architecture](#-architecture)
 - [🧠 Core concepts](#-core-concepts)
-- [Framework, not Distribution](#framework-not-distribution)
+- [📕 Framework, not Distribution](#-framework-not-distribution)
 - [🖥 Platform support](#-platform-support)
-- [📦 start-kit-extras](#-start-kit-extras)
+- [📦 Custom](#-custom)
 - [📖 CLI](#-cli)
 - [📄 Contracts](#-contracts)
 - [⚠️ Uninstall policy](#-uninstall-policy)
@@ -35,16 +36,27 @@ StartKit is a modular CLI framework for building development environments with:
 
 </details>
 
-## 🚀 1-minute quick start
+## ⚙️ Initial Setup
 
-Try StartKit in under a minute.
+Follow these steps to set up StartKit:
 
 ```bash
 git clone <repo>
 cd start-kit
 
 export PATH="$PWD/bin:$PATH"
+start-kit init
+```
 
+This does the following:
+- Adds start-kit to your PATH
+- Runs the initial setup command
+
+## 🚀 1-minute quick start
+
+Try StartKit in under a minute.
+
+```bash
 start-kit install profile base
 ```
 
@@ -142,7 +154,7 @@ custom/modules/
 custom/profiles/
 ```
 
-## Framework, not Distribution
+## 📕 Framework, not Distribution
 
 StartKit is a **framework for environment setup**, not a distribution of opinionated tools.
 
@@ -186,7 +198,7 @@ StartKit currently supports:
 
 Linux is intentionally out of scope for now, but the architecture leaves room for future extension.
 
-## 📦 start-kit-extras
+## 📦 Custom
 
 StartKit core intentionally stays minimal.
 
@@ -195,9 +207,51 @@ If you want practical toolsets such as:
 - AI development tools
 - GUI apps
 
-use **`start-kit-extras`** or your local `custom/`.
+use `custom/`.
 
-`start-kit-extras` is a practical module collection built on top of StartKit.
+### Custom Resolution
+
+StartKit resolves custom modules and profiles using `custom/paths.txt`.
+
+- one entry per line
+- relative to `custom/`
+- empty lines ignored
+- `#` treated as comment
+
+Resolution order:
+
+Modules:
+1. custom/<root>/modules/<name>
+2. custom/modules/<name>
+3. modules/<name>
+
+Profiles:
+1. custom/<root>/profiles/<name>
+2. custom/profiles/<name>
+3. profiles/<name>
+
+### Creating Modules / Profiles
+
+```bash
+start-kit new module foo
+start-kit new profile bar
+```
+
+→ custom/modules / custom/profiles
+
+```bash
+start-kit new module foo --custom StartKit
+```
+
+→ modules/
+
+```bash
+start-kit new module foo --custom personal
+```
+
+→ custom/personal/
+
+If not registered in paths.txt, it will still be created with warning.
 
 ## 📖 CLI
 
@@ -262,16 +316,21 @@ Modules may implement `uninstall()` as an optional extension, but the CLI does n
 
 ## 🤝 Contributing
 
-See:
+Start here:
 - [CONTRIBUTING.md](`CONTRIBUTING.md`)
-- [docs/cli-spec.md](`docs/cli-spec.md`)
-- [docs/module-spec.md](`docs/module-spec.md`)
-- [docs/profile-spec.md](`docs/profile-spec.md`)
-- [docs/platform-design.md](`docs/platform-design.md`)
-- [docs/repo-split-policy.ja.md](`docs/repo-split-policy.ja.md`)
-- [docs/git-workflow.md](`docs/git-workflow.md`)
-- [changeset-guide.md](`docs/changeset-guide.md`)
-- [changeset-release-flow.md](`docs/changeset-release-flow.md`)
+- [docs/cli-spec.md](docs/cli-spec.md)
+- [docs/custom-paths.md](docs/custom-paths.md)
+- [docs/module-spec.md](docs/module-spec.md)
+- [docs/profile-spec.md](docs/profile-spec.md)
+
+Then:
+- [docs/platform-design.md](docs/platform-design.md)
+- [docs/git-workflow.md](docs/git-workflow.md)
+- [docs/changeset-guide.md](docs/changeset-guide.md)
+- [docs/changeset-release-flow.md](docs/changeset-release-flow.md)
+
+Optional:
+- [docs/practicality-patch.md](docs/practicality-patch.md)
 
 ## Changelog
 

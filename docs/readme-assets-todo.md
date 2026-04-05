@@ -1,61 +1,63 @@
-# README Asset TODOs
+# README 用アセット TODO
 
-Use this checklist when replacing placeholder assets with real files.
+プレースホルダーのアセットを実ファイルに差し替える際のチェックリストです。
 
-## Architecture diagram
+---
 
-Target file:
+## アーキテクチャ図
+
+対象ファイル：
 - `assets/readme/diagrams/architecture-overview.png`
 
-TODO:
-- [ ] Export a real architecture diagram image
-- [ ] Keep width readable in GitHub README
-- [ ] Ensure labels match current terminology:
+TODO：
+- [ ] 実際のアーキテクチャ図を画像として書き出す
+- [ ] GitHubのREADME上で読みやすい幅に調整する
+- [ ] 現在の用語と一致していることを確認する：
   - module
   - profile
   - package manager abstraction
   - platform
-- [ ] Update the diagram when core responsibilities change
+- [ ] コア設計が変更された場合は図も更新する
 
-Suggested source file to keep:
+推奨ソースファイル：
 - `assets/source/architecture-overview.drawio`
 
 ---
 
-## Quick start demo GIF
+## クイックスタート用デモGIF
 
-Target file:
+対象ファイル：
 - `assets/readme/demos/quickstart-demo.gif`
 
-TODO:
-- [ ] Record a short 5–10 second demo
-- [ ] Show:
+TODO：
+- [ ] 5〜10秒程度の短いデモを録画する
+- [ ] 以下の操作を含める：
   - `start-kit install profile base`
   - `git --version`
   - `start-kit doctor`
-- [ ] Keep the GIF size small enough for README loading
-- [ ] Prefer terminal theme with readable contrast
+- [ ] README表示時に重くならないようファイルサイズを抑える
+- [ ] 視認性の高いターミナルテーマを使用する
 
-Suggested source file to keep:
+推奨ソースファイル：
 - `assets/source/quickstart-demo.mov`
 
 ---
 
-## Hero image (optional)
+## ヒーロー画像（任意）
 
-Target directory:
+対象ディレクトリ：
 - `assets/readme/hero/`
 
-TODO:
-- [ ] Decide whether a hero image is actually needed
-- [ ] If added, keep it minimal and product-focused
-- [ ] Avoid duplicating information already stated in the title/subtitle
+TODO：
+- [ ] ヒーロー画像が本当に必要かを判断する
+- [ ] 使用する場合は、シンプルでプロダクトにフォーカスした内容にする
+- [ ] タイトルやサブタイトルと情報が重複しないようにする
 
 ---
 
-## README maintenance
+## README メンテナンス
 
-TODO:
-- [ ] Replace placeholder references once final assets are committed
-- [ ] Verify image paths in both `README.md` and `README.ja.md`
-- [ ] Confirm GitHub renders the images correctly
+TODO：
+- [ ] 最終アセット反映後、プレースホルダーの参照を置き換える
+- [ ] `README.md` と `README.ja.md` の両方で画像パスを確認する
+- [ ] GitHub上で正しく表示されることを確認する

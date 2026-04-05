@@ -6,77 +6,68 @@ START_KIT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "${START_KIT_ROOT}/lib/log.sh"
 source "${START_KIT_ROOT}/lib/common.sh"
 source "${START_KIT_ROOT}/lib/resolver.sh"
-source "${START_KIT_ROOT}/lib/platform.sh"
-source "${START_KIT_ROOT}/lib/package_manager.sh"
-source "${START_KIT_ROOT}/lib/help.sh"
-source "${START_KIT_ROOT}/lib/list_runner.sh"
 source "${START_KIT_ROOT}/lib/scaffold.sh"
-source "${START_KIT_ROOT}/lib/module_runner.sh"
-source "${START_KIT_ROOT}/lib/profile_runner.sh"
-source "${START_KIT_ROOT}/lib/doctor_runner.sh"
+source "${START_KIT_ROOT}/lib/init.sh"
+source "${START_KIT_ROOT}/lib/help.sh"
 
-detect_platform
-detect_default_package_manager
+show_version() {
+  if [[ -f "${START_KIT_ROOT}/VERSION" ]]; then
+    echo "start-kit v$(cat "${START_KIT_ROOT}/VERSION")"
+  else
+    echo "start-kit vunknown"
+  fi
+}
 
-show_version() { echo "start-kit v$(read_version)"; }
+parse_new_flags() {
+  NEW_CUSTOM_ROOT="default"
 
-parse_install_flags() {
-  ASSUME_YES="false"
-  DRY_RUN="false"
-  REQUESTED_VERSION=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --yes) ASSUME_YES="true"; shift ;;
-      --dry-run) DRY_RUN="true"; shift ;;
-      --version) shift; [[ $# -gt 0 ]] || fail "--version requires a value"; REQUESTED_VERSION="$1"; shift ;;
-      *) fail "unknown option: $1" ;;
+      --custom)
+        shift
+        [[ $# -gt 0 ]] || fail "--custom requires a value"
+        NEW_CUSTOM_ROOT="$1"
+        shift
+        ;;
+      *)
+        fail "unknown option: $1"
+        ;;
     esac
   done
 }
 
 case "${1:-help}" in
-  version|--version|-v) show_version ;;
-  help|-h|--help) show_help ;;
-  doctor)
-    case "${2:-}" in
-      "") doctor_core ;;
-      module) doctor_module "${3:?module name required}" ;;
-      profile) doctor_profile "${3:?profile name required}" ;;
-      *) show_help; exit 1 ;;
-    esac
+  init)
+    init_custom_layout
     ;;
-  install)
-    case "${2:-}" in
-      module)
-        module_name="${3:?module name required}"
-        shift 3
-        parse_install_flags "$@"
-        installed_modules=()
-        run_module_install "$module_name" "$REQUESTED_VERSION" installed_modules "$ASSUME_YES" "$DRY_RUN"
-        ;;
-      profile)
-        profile_name="${3:?profile name required}"
-        shift 3
-        parse_install_flags "$@"
-        [[ -z "$REQUESTED_VERSION" ]] || fail "--version is supported only for 'install module'"
-        run_profile_install "$profile_name" "$ASSUME_YES" "$DRY_RUN"
-        ;;
-      *) show_help; exit 1 ;;
-    esac
+  version|--version|-v)
+    show_version
     ;;
-  list)
-    case "${2:-}" in
-      modules) list_modules ;;
-      profiles) list_profiles ;;
-      *) show_help; exit 1 ;;
-    esac
+  help|-h|--help)
+    show_help
     ;;
   new)
     case "${2:-}" in
-      module) new_module "${3:?module name required}" ;;
-      profile) new_profile "${3:?profile name required}" ;;
-      *) show_help; exit 1 ;;
+      module)
+        name="${3:?module name required}"
+        shift 3
+        parse_new_flags "$@"
+        new_module "$name" "$NEW_CUSTOM_ROOT"
+        ;;
+      profile)
+        name="${3:?profile name required}"
+        shift 3
+        parse_new_flags "$@"
+        new_profile "$name" "$NEW_CUSTOM_ROOT"
+        ;;
+      *)
+        show_help
+        exit 1
+        ;;
     esac
     ;;
-  *) show_help; exit 1 ;;
+  *)
+    show_help
+    exit 1
+    ;;
 esac
