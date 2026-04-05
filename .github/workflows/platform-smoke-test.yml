@@ -44,6 +44,13 @@ jobs:
           chmod +x bin/start-kit || true
           chmod +x scripts/package-manager-smoke-test.sh || true
 
+      - name: Debug environment
+        run: |
+          echo "PATH=$PATH"
+          command -v bash || true
+          command -v winget || true
+          command -v scoop || true
+
       - name: Run doctor
         run: ./bin/start-kit doctor || true
 

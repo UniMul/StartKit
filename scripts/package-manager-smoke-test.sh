@@ -5,7 +5,9 @@ START_KIT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # shellcheck disable=SC1091
 source "${START_KIT_ROOT}/lib/log.sh"
+# shellcheck disable=SC1091
 source "${START_KIT_ROOT}/lib/common.sh"
+# shellcheck disable=SC1091
 source "${START_KIT_ROOT}/lib/platform.sh"
 
 detect_platform
