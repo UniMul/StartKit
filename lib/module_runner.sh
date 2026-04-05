@@ -54,8 +54,7 @@ collect_missing_dependencies() {
   module_load "$module_name"
 
   for dep in "${MODULE_DEPENDS[@]}"; do
-    eval "array_contains \"\$dep\" \"\${${out_name}[@]:-}\""
-    if [[ $? -ne 0 ]]; then
+    if ! eval "array_contains \"\$dep\" \"\${${out_name}[@]:-}\""; then
       if ! module_is_installed "$dep"; then
         eval "${out_name}+=(\"\$dep\")"
       fi
@@ -101,8 +100,9 @@ run_module_install() {
   local assume_yes="${4:-false}"
   local dry_run="${5:-false}"
 
-  eval "array_contains \"\$module_name\" \"\${${installed_ref_name}[@]:-}\""
-  [[ $? -eq 0 ]] && return 0
+  if eval "array_contains \"\$module_name\" \"\${${installed_ref_name}[@]:-}\""; then
+    return 0
+  fi
 
   local missing_deps=()
   collect_missing_dependencies "$module_name" missing_deps

@@ -9,6 +9,8 @@ profile_load() {
   local profile_path
   profile_path="$(resolve_profile "$profile_name")" || fail "profile not found: ${profile_name}"
 
+  profile_reset_context
+
   # shellcheck disable=SC1090
   source "$profile_path"
 

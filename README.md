@@ -44,9 +44,12 @@ Follow these steps to set up StartKit:
 
 ```bash
 git clone <repo>
-cd start-kit
+cd StartKit
 
-export PATH="$PWD/bin:$PATH"
+echo "export STARTKIT_HOME=\"$(pwd)\"" >> ~/.zshrc
+echo 'export PATH="$STARTKIT_HOME/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+
 start-kit init
 ```
 
